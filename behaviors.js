@@ -111,9 +111,8 @@
         },
 
     };
-
-    /* let showProperties = {
-        tick() {
+        runtime._iRuntime.addEventListener("tick", () => Properties())
+        function Properties() {
             try {
                 document.getElementById("fps").innerHTML =
                     "FPS: " + runtime._fps
@@ -124,15 +123,15 @@
             } catch (err) { }
             try {
                 document.getElementById("speed").innerHTML =
-                    "Speed: " + Math.round(ovoBehaviors.getPlayer().behavior_insts[0].dx)
+                    "Speed: " + Math.round(ovoBehaviors.getPlayer().behaviors.Platform.vectorX)
             } catch (err) { }
             try {
                 document.getElementById("grav").innerHTML =
-                    "Gravity: " + ovoBehaviors.getPlayer().behavior_insts[0].g
+                    "Gravity: " + ovoBehaviors.getPlayer().behaviors.Platform.gravity
             } catch (err) { }
             try {
                 document.getElementById("js").innerHTML =
-                    "Jump strength: " + ovoBehaviors.getPlayer().behavior_insts[0].jumpStrength
+                    "Jump strength: " + ovoBehaviors.getPlayer().behaviors.Platform.jumpStrength
             } catch (err) { }
             try { if(ovoBehaviors.getPlayer().my_timescale === -1){
                 document.getElementById("ts").innerHTML =
@@ -201,7 +200,6 @@
                 document.getElementById("state").innerHTML =
                     "State: " + ovoBehaviors.getPlayer().instance_vars[0]
             } catch (err) { }
-        },
     };
 
    
@@ -589,8 +587,8 @@
             borderWidth: "1px",
             fontFamily: "Retron2000",
             position: "absolute",
-            top: "100px",
-            left: "1276.5px",
+            top: "720px",
+            left: "0px",
             padding: "10px",
             color: "black",
             fontSize: "13pt",
@@ -629,7 +627,7 @@
     // add the text node to the newly created div
     bstate.appendChild(newContentstate);
 
-    document.body.appendChild(bstate); */
+    document.body.appendChild(bstate);
 
     behaviors.init();
 })();
