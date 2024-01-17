@@ -133,12 +133,12 @@
                 document.getElementById("js").innerHTML =
                     "Jump strength: " + ovoBehaviors.getPlayer().behaviors.Platform.jumpStrength
             } catch (err) { }
-            try { if(ovoBehaviors.getPlayer().my_timescale === -1){
+            try { if(runtime._allObjectClasses[12]._instances[0]._timeScale === -1){
                 document.getElementById("ts").innerHTML =
                 "Player Timescale: Normal"
             }else{
                 document.getElementById("ts").innerHTML =
-                    "Player Timescale: " + ovoBehaviors.getPlayer().my_timescale
+                    "Player Timescale: " + runtime._allObjectClasses[12]._instances[0]._timeScale
             }} catch (err) { }
             try { if(ovoBehaviors.getMovearea().instances[0].my_timescale === -1){
                 document.getElementById("mts").innerHTML =
