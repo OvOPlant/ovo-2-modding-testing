@@ -1,6 +1,7 @@
 (function() {
     let runtime = c3_runtimeInterface._GetLocalRuntime();
     let notify = () => {};
+    var debugInt;
 
     let behaviors = {
         init() {
@@ -80,23 +81,28 @@
         },
 
         pausing() {
-            enable = prompt('This will allow you to pause the game just like OvO (Esc or P), but there will be no pop up. (Try to pause while player/movearea timescale is set to 1) To enable pausing, type "yes". To disable pausing, type "no".')
-            if (enable === "yes"){
+            penable = prompt('This will allow you to pause the game just like OvO (Esc or P), but there will be no pop up. (Try to pause while player/movearea timescale is set to 1) To enable pausing, type "enable". To disable pausing, type "disable".')
+            if (penable === "enable"){
                 document.addEventListener("keydown", Pause);
                 return;
-            }else if (enable === "no"){
+            }else if (penable === "disable"){
                 document.removeEventListener("keydown",Pause);
                 if (runtime._timeScale === 0){
                     runtime._timeScale = 1
                 }
             }else{
-                alert('"yes" or "no", nothing else.')
+                alert('"enable" or "disable", nothing else.')
                 return;
             }
         },
 
         debug() {
-            debug = prompt('This will allow you to see your hitbox and moveareas. No replays, literally impossible.')
+            debug = prompt('This will allow you to see your hitbox and moveareas. No replays, literally impossible. Type "enable" to show hitboxes, type "disable" to hide hitboxes.')
+            if (debug === "enable"){
+                debugInt = setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.isVisible = true
+                })
+            }
+            
         },
 
         tp() {
