@@ -58,8 +58,10 @@
         },
        
         loadPrompt() {
-            let bh = prompt('Choose one: "teleport", "gravity", "jumpstrength", "timescale", "angle", "speed", "fallspeed", "acceleration", "deceleration", "size", "downx", "downy", "zoom", "dead", or type "reset"');
+            let bh = prompt('Choose one: "pausing", "debug", "teleport", "gravity", "jumpstrength", "timescale", "angle", "speed", "fallspeed", "acceleration", "deceleration", "size", "downx", "downy", "zoom", "dead", or type "reset"');
             if (bh === "reset") {this.loadReset();
+            }else if (bh === "pausing") {this.pausing();
+            }else if (bh === "debug") {this.debug();
             }else if (bh === "teleport") {this.tp();
             }else if (bh === "gravity") {this.gravity();
             }else if (bh === "jumpstrength") {this.jumpstrength();
@@ -77,18 +79,38 @@
             }else {alert("Please choose from the list")}
         },
 
+        pausing() {
+            enable = prompt('This will allow you to pause the game just like OvO (Esc or P), but there will be no pop up. (Try to pause while player/movearea timescale is set to 1) To enable pausing, type "yes". To disable pausing, type "no".')
+            if (enable === "yes"){
+                document.addEventListener("keydown", Pause);
+                return;
+            }else if (enable === "no"){
+                document.removeEventListener("keydown",Pause);
+                if (runtime._timeScale === 0){
+                    runtime._timeScale = 1
+                }
+            }else{
+                alert('"yes" or "no", nothing else.')
+                return;
+            }
+        },
+
+        debug() {
+            debug = prompt('This will allow you to see your hitbox and moveareas. No replays, literally impossible.')
+        },
+
         tp() {
             px = prompt('Change your x coordinate to whatever you want, leave blank to not change');
             py = prompt('Change your y coordinate to whatever you want, leave blank to not change');
             if (px === null || px === "" || isNaN(px)){
-                px = ovoBehaviors.getPlayer().x
+                px = ovoBehaviors.getPlayer()._iScriptInterface.x
             }else{
-                ovoBehaviors.getPlayer().x = parseFloat(px)
+                ovoBehaviors.getPlayer()._iScriptInterface.x = parseFloat(px)
             }
             if (py === null || py === "" || isNaN(py)){
-                py = ovoBehaviors.getPlayer().y
+                py = ovoBehaviors.getPlayer()._iScriptInterface.y
             }else{
-                ovoBehaviors.getPlayer().y = parseFloat(py)
+                ovoBehaviors.getPlayer()._iScriptInterface.y = parseFloat(py)
             }
             return;
         },
@@ -97,20 +119,94 @@
             grav = prompt('Change your gravity to whatever you want');
             if (grav === null || grav === "" || isNaN(grav)){
                 alert("Must be a number, gravity reset")
-                grav = 1500;
-                this.getPlayer().maxFall = parseFloat(grav) * 2
+                grav = 3000;
+                this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = parseFloat(grav) * 2
                 return;
             }
-            this.getPlayer().behavior_insts[0].maxFall = parseFloat(grav) * 2
-            setInterval(function() {ovoBehaviors.getPlayer().behaviors.Platform.gravity = parseFloat(grav)}, 0);
+            this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = parseFloat(grav) * 2
+            setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity = parseFloat(grav)}, 0);
             return;
         },
 
+        jumpstrength() {
+            js = prompt('Change your jump strength to whatever you want');
+            if (js === null || js === "" || isNaN(js)){
+                alert("Must be a number, jump strength reset")
+                js = 1300
+                return;
+            }
+            if (js < 0){
+                alert("Cannot be negative, jumpstrength changed to a positive number.")
+                js = js * -1
+                return;
+            }
+            setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.jumpStrength = parseFloat(js);}, 0);
+            return;
+        },
+
+        timescale() {
+            wts = prompt('"player" or "moveareas"?')
+            if (wts === "player"){
+            ts = prompt('Change your timescale to whatever you want');
+            if (ts === null || ts === "" || isNaN(ts)){
+                alert("Must be a number, timescale reset")
+                ts = -1
+                return;
+            }
+            if (ts < 0){
+                alert("Negative timescale breaks the game and, unlike OvO, certain collider behaviors cannot be negative. Timescale has been changed to a positive number.")
+                ts = ts * -1
+                return;
+            }
+            setInterval(function() {
+                if (runtime._timeScale === 0 && (ovoBehaviors.getPlayer()._timeScale < 1 || ovoBehaviors.getPlayer()._timeScale > 1)){
+                    ovoBehaviors.getPlayer()._timeScale = -1
+                }else(
+                ovoBehaviors.getPlayer()._timeScale = ts), 0});
+                }
+                if (wts === "moveareas"){
+                mts = prompt('Change movearea timescale to whatever you want');
+            if (mts === null || mts === "" || isNaN(mts)){
+                alert("Must be a number, timescale reset")
+                mts = -1
+                return;
+            }
+            if (mts < 0){
+                alert("Changing movearea's timescale to a negative number CRASHES the game. Changed to a positive number.")
+                mts = mts * -1
+                return;
+            }
+            
+            setInterval(function() {
+                for (i = 0, len = runtime._allObjectClasses[20]._instances.length; i < len; i++)
+                {
+                if (runtime._timeScale === 0 && (ovoBehaviors.getMovearea()._instances[i]._timeScale < 1 || ovoBehaviors.getMovearea()._instances[i]._timeScale > 1)){
+                    ovoBehaviors.getMovearea()._instances[i]._timeScale = -1
+                }else(
+                    ovoBehaviors.getMovearea()._instances[i]._timeScale = mts), 0}});
+            
+                }
+        },
+
         getPlayer() {
-            return runtime._iRuntime.objects.Collider.getFirstPickedInstance()
+            return runtime._allObjectClasses[12]._instances[0]
+        },
+
+        getMovearea() {
+            return runtime._allObjectClasses[20]
         },
 
     };
+
+        function Pause(event){
+            if (event.code === "KeyP" || event.code === "Escape"){
+                if (runtime._timeScale !== 0){
+                    runtime._timeScale = 0
+                }else{
+                    runtime._timeScale = 1
+                }
+            }
+        }
         runtime._iRuntime.addEventListener("tick", () => Properties())
         function Properties() {
             try {
@@ -119,19 +215,19 @@
             } catch (err) { }
             try {
                 document.getElementById("coords").innerHTML =
-                    Math.round(ovoBehaviors.getPlayer().x) + ", " + Math.round(ovoBehaviors.getPlayer().y)
+                    Math.round(ovoBehaviors.getPlayer()._iScriptInterface.x) + ", " + Math.round(ovoBehaviors.getPlayer()._iScriptInterface.y)
             } catch (err) { }
             try {
                 document.getElementById("speed").innerHTML =
-                    "Speed: " + Math.round(ovoBehaviors.getPlayer().behaviors.Platform.vectorX)
+                    "Speed: " + Math.round(ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.vectorX)
             } catch (err) { }
             try {
                 document.getElementById("grav").innerHTML =
-                    "Gravity: " + ovoBehaviors.getPlayer().behaviors.Platform.gravity
+                    "Gravity: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity
             } catch (err) { }
             try {
                 document.getElementById("js").innerHTML =
-                    "Jump strength: " + ovoBehaviors.getPlayer().behaviors.Platform.jumpStrength
+                    "Jump strength: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.jumpStrength
             } catch (err) { }
             try { if(runtime._allObjectClasses[12]._instances[0]._timeScale === -1){
                 document.getElementById("ts").innerHTML =
@@ -140,57 +236,57 @@
                 document.getElementById("ts").innerHTML =
                     "Player Timescale: " + runtime._allObjectClasses[12]._instances[0]._timeScale
             }} catch (err) { }
-            try { if(ovoBehaviors.getMovearea().instances[0].my_timescale === -1){
+            try { if(ovoBehaviors.getMovearea()._instances[0]._timeScale === -1){
                 document.getElementById("mts").innerHTML =
                 "Movearea Timescale: Normal"
             }else{
                 document.getElementById("mts").innerHTML =
-                    "Movearea Timescale: " + ovoBehaviors.getMovearea().instances[0].my_timescale
+                    "Movearea Timescale: " + ovoBehaviors.getMovearea()._instances[0]._timeScale
             }} catch (err) { }
             try {
                 document.getElementById("angle").innerHTML =
-                    "Angle: " + Math.round(ovoBehaviors.getPlayer().angle / (Math.PI / 180))
+                    "Angle: " + Math.round(ovoBehaviors.getPlayer()._iScriptInterface.angle / (Math.PI / 180))
             } catch (err) { }
             try {
                 document.getElementById("maxspeed").innerHTML =
-                    "Max speed: " + parseInt(ovoBehaviors.getPlayer().behavior_insts[0].maxspeed)
+                    "Max speed: " + parseInt(ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxSpeed)
             } catch (err) { }
             try {
                 document.getElementById("fall").innerHTML =
-                    "Fall speed: " + ovoBehaviors.getPlayer().behavior_insts[0].maxFall
+                    "Fall speed: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed
             } catch (err) { }
             try {
                 document.getElementById("acc").innerHTML =
-                    "Acceleration: " + ovoBehaviors.getPlayer().behavior_insts[0].acc
+                    "Acceleration: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.acceleration
             } catch (err) { }
             try {
                 document.getElementById("dec").innerHTML =
-                    "Deceleration: " + ovoBehaviors.getPlayer().behavior_insts[0].dec
+                    "Deceleration: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration
             } catch (err) { }
-            try { if (ovoBehaviors.getPlayer().width === 16.00000000000001){
+            try { if (ovoBehaviors.getPlayer()._iScriptInterface.width === 16.00000000000001){
                 document.getElementById("size").innerHTML =
-                "Size: " + 16 + ", " + ovoBehaviors.getPlayer().height
-            }else if (ovoBehaviors.getPlayer().width === -16.00000000000001){
+                "Size: " + 16 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -16.00000000000001){
                 document.getElementById("size").innerHTML =
-                "Size: " + -16 + ", " + ovoBehaviors.getPlayer().height
-            }else if (ovoBehaviors.getPlayer().width === -32.00000000000002){
+                "Size: " + -16 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -32.00000000000002){
                 document.getElementById("size").innerHTML =
-                "Size: " + -32 + ", " + ovoBehaviors.getPlayer().height
-            }else if (ovoBehaviors.getPlayer().width === 32.00000000000002){
+                "Size: " + -32 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === 32.00000000000002){
                 document.getElementById("size").innerHTML =
-                "Size: " + 32 + ", " + ovoBehaviors.getPlayer().height
+                "Size: " + 32 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
             }else{
                 document.getElementById("size").innerHTML =
-                    "Size: " + ovoBehaviors.getPlayer().width + ", " + ovoBehaviors.getPlayer().height
+                    "Size: " + ovoBehaviors.getPlayer()._iScriptInterface.width + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
             }
             } catch (err) { }
             try {
                 document.getElementById("dx").innerHTML =
-                    "Downx: " + ovoBehaviors.getPlayer().behavior_insts[0].downx
+                    "Downx: " + ovoBehaviors.getPlayer()._iScriptInterface.behavior_insts[0].downx
             } catch (err) { }
             try {
                 document.getElementById("dy").innerHTML =
-                    "Downy: " + ovoBehaviors.getPlayer().behavior_insts[0].downy
+                    "Downy: " + ovoBehaviors.getPlayer()._iScriptInterface.behavior_insts[0].downy
             } catch (err) { }
             try {
                 document.getElementById("zoom").innerHTML =
@@ -198,7 +294,7 @@
             } catch (err) { }
             try {
                 document.getElementById("state").innerHTML =
-                    "State: " + ovoBehaviors.getPlayer().instance_vars[0]
+                    "State: " + ovoBehaviors.getPlayer()._iScriptInterface.instance_vars[0]
             } catch (err) { }
     };
 
