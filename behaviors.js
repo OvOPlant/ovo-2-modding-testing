@@ -1,7 +1,7 @@
 (function() {
     let runtime = c3_runtimeInterface._GetLocalRuntime();
-    let notify = () => {};
     var debugInt;
+    var dead;
 
     let behaviors = {
         init() {
@@ -15,7 +15,6 @@
             });
 
             globalThis.ovoBehaviors = this;
-            notify("Mod Loaded", "Reset Button Mod Loaded");
         },
 
         initDomUI() {
@@ -97,12 +96,14 @@
         },
 
         debug() {
-            debug = prompt('This will allow you to see your hitbox and moveareas. No replays, literally impossible. Type "enable" to show hitboxes, type "disable" to hide hitboxes.')
-            if (debug === "enable"){
-                debugInt = setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.isVisible = true
-                })
+            debug = prompt('This will allow you to see your hitbox and moveareas by pressing F2. Pressing F2 again will hide them. No replays, literally impossible. Type "yes".')
+            if (debug === "yes"){
+                debugv = "debugyes"
+                document.addEventListener("keydown", Debug)
+            }else{
+                alert('Literally just one option, "yes"')
+                return;
             }
-            
         },
 
         tp() {
@@ -130,7 +131,7 @@
                 return;
             }
             this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = parseFloat(grav) * 2
-            setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity = parseFloat(grav)}, 0);
+            runtime._dispatcher.addEventListener("tick2", GravTick)
             return;
         },
 
@@ -194,6 +195,58 @@
                 }
         },
 
+        angle() {
+            pangle = prompt('Change your angle to a number between 1 and 360');
+            if (pangle === null || pangle === "" || isNaN(pangle)){
+                alert("Must be a number between 1 and 360, angle reset")
+                pangle = 0
+                return;
+            }
+            if (pangle >= 0 && pangle <= 360){
+                runtime._dispatcher.addEventListener("tick2", AngleTick)
+                return;
+            }else{
+                alert("Must be a number between 1 and 360, angle reset")
+                pangle = 0
+            }
+            return;
+        },
+
+        maxspeed() {
+            ms = prompt("Change your speed to whatever you want")
+            if (ms === null || ms === "" || isNaN(ms)){
+                alert("Must be a number, speed reset")
+                runtime._dispatcher.removeEventListener("tick2", SpeedTick)
+                return;
+            }else if (ms === 331){
+                ms = 330.00000000001
+            }
+            runtime._dispatcher.addEventListener("tick2", SpeedTick)
+        },
+
+        fallspeed() {
+            mf = prompt('Change your fallspeed to whatever you want');
+            if (mf === null || mf === "" || isNaN(mf)){
+                alert("Must be a number, speed reset")
+                runtime._dispatcher.removeEventListener("tick2", FallTick)
+                return;
+            }
+            runtime._dispatcher.addEventListener("tick2", FallTick)
+            return;
+        },
+
+        dead() {
+            dead = prompt("This will put you in death state, meaning you can't die. Just be sure to not fall under the level. If you do, you will die. To enable this, type 'yes'. To disable this, type 'stop'.")
+            if (dead === "yes"){
+                runtime._dispatcher.addEventListener("tick2", Death)
+            }else if (dead === "stop"){
+                runtime._dispatcher.removeEventListener("tick2", Death)
+                ovoBehaviors.getPlayer()._iScriptInterface.instVars.State = ""
+            }else{
+                alert('"yes" or "stop", nothing else.')
+            }
+        },
+
         getPlayer() {
             return runtime._allObjectClasses[12]._instances[0]
         },
@@ -213,7 +266,56 @@
                 }
             }
         }
-        runtime._iRuntime.addEventListener("tick", () => Properties())
+
+        function Debug(event){
+            if (event.code === "F2"){
+                if (debugv === "debugyes"){
+                    runtime._dispatcher.addEventListener("tick2", DebugTick)
+                    debugv = "debugno"
+                }else if(debugv === "debugno"){
+                    runtime._dispatcher.removeEventListener("tick2", DebugTick)
+                    ovoBehaviors.getPlayer()._iScriptInterface.isVisible = false
+                        for (j = 0, lenj = runtime._allObjectClasses[20]._instances.length; j < lenj; j++){
+                        ovoBehaviors.getMovearea()._instances[j]._behaviorInstances[0]._iScriptInterface.instance.isVisible = false}
+                   debugv = "debugyes"
+                }
+            }
+        }
+
+        function DebugTick(){
+            ovoBehaviors.getPlayer()._iScriptInterface.isVisible = true
+                for (j = 0, lenj = runtime._allObjectClasses[20]._instances.length; j < lenj; j++){
+                ovoBehaviors.getMovearea()._instances[j]._behaviorInstances[0]._iScriptInterface.instance.isVisible = true}
+        }
+
+        function GravTick(){
+            ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity = parseFloat(grav)
+        }
+
+        function AngleTick(){
+            ovoBehaviors.getPlayer()._iScriptInterface.angle = pangle * (Math.PI/180)
+        }
+
+        function SpeedTick(){
+            if (ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxSpeed === 660){
+                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxSpeed = ms
+            }else if(ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxSpeed === 1320){
+                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxSpeed = ms * 2
+            }
+        }
+
+        function FallTick(){
+            ovoBehaviors.getPlayer()._iScriptInterface
+        }
+
+        function Death(){
+            if (ovoBehaviors.getPlayer()._iScriptInterface.y >= (runtime._iRuntime.globalVars.levelHeight + ovoBehaviors.getPlayer()._iScriptInterface.height)){
+                ovoBehaviors.getPlayer()._iScriptInterface.instVars.State = ""
+            }else{
+                ovoBehaviors.getPlayer()._iScriptInterface.instVars.State = "dead"
+            }
+        }
+        runtime._dispatcher.addEventListener("tick", () => Properties())
         function Properties() {
             try {
                 document.getElementById("fps").innerHTML =
@@ -235,12 +337,12 @@
                 document.getElementById("js").innerHTML =
                     "Jump strength: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.jumpStrength
             } catch (err) { }
-            try { if(runtime._allObjectClasses[12]._instances[0]._timeScale === -1){
+            try { if(ovoBehaviors.getPlayer()._timeScale === -1){
                 document.getElementById("ts").innerHTML =
                 "Player Timescale: Normal"
             }else{
                 document.getElementById("ts").innerHTML =
-                    "Player Timescale: " + runtime._allObjectClasses[12]._instances[0]._timeScale
+                    "Player Timescale: " + ovoBehaviors.getPlayer()._timeScale
             }} catch (err) { }
             try { if(ovoBehaviors.getMovearea()._instances[0]._timeScale === -1){
                 document.getElementById("mts").innerHTML =
@@ -300,7 +402,7 @@
             } catch (err) { }
             try {
                 document.getElementById("state").innerHTML =
-                    "State: " + ovoBehaviors.getPlayer()._iScriptInterface.instance_vars[0]
+                    "State: " + ovoBehaviors.getPlayer()._iScriptInterface.instVars.State
             } catch (err) { }
     };
 
