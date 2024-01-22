@@ -112,12 +112,12 @@
             if (px === null || px === "" || isNaN(px)){
                 px = ovoBehaviors.getPlayer()._iScriptInterface.x
             }else{
-                ovoBehaviors.getPlayer()._iScriptInterface.x = parseFloat(px)
+                ovoBehaviors.getPlayer()._iScriptInterface.x = px
             }
             if (py === null || py === "" || isNaN(py)){
                 py = ovoBehaviors.getPlayer()._iScriptInterface.y
             }else{
-                ovoBehaviors.getPlayer()._iScriptInterface.y = parseFloat(py)
+                ovoBehaviors.getPlayer()._iScriptInterface.y = py
             }
             return;
         },
@@ -127,10 +127,10 @@
             if (grav === null || grav === "" || isNaN(grav)){
                 alert("Must be a number, gravity reset")
                 grav = 3000;
-                this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = parseFloat(grav) * 2
+                this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = grav * 2
                 return;
             }
-            this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = parseFloat(grav) * 2
+            this.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = grav * 2
             runtime._dispatcher.addEventListener("tick2", GravTick)
             return;
         },
@@ -147,7 +147,7 @@
                 js = js * -1
                 return;
             }
-            setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.jumpStrength = parseFloat(js);}, 0);
+            setInterval(function() {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.jumpStrength = js;}, 0);
             return;
         },
 
@@ -235,6 +235,28 @@
             return;
         },
 
+        acceleration() {
+            acc = prompt('Change your acceleration to whatever you want');
+            if (acc === null || acc === "" || isNaN(acc)) {
+                alert("Must be a number, acceleration reset")
+                acc = 3000
+                return;
+            }
+            setInterval(function () {ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.acceleration = acc; }, 0);
+            return;
+        },
+
+        deceleration() {
+            dc = prompt('Change your deceleration to whatever you want')
+            if (dc === null || dc === "" || isNaN(dc)) {
+                alert("Must be a number, deceleration reset")
+                runtime._dispatcher.removeEventListener("tick2", DecTick)
+                return;
+            }
+            runtime._dispatcher.addEventListener("tick2", DecTick)
+            return;
+        },
+
         dead() {
             dead = prompt("This will put you in death state, meaning you can't die. Just be sure to not fall under the level. If you do, you will die. To enable this, type 'yes'. To disable this, type 'stop'.")
             if (dead === "yes"){
@@ -289,7 +311,7 @@
         }
 
         function GravTick(){
-            ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity = parseFloat(grav)
+            ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.gravity = grav
         }
 
         function AngleTick(){
@@ -305,7 +327,17 @@
         }
 
         function FallTick(){
-            ovoBehaviors.getPlayer()._iScriptInterface
+            ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.maxFallSpeed = mf
+        }
+
+        function DecTick(){
+            if (ovoBehaviors.getPlayer()._iScriptInterface.behviors.Platform.deceleration === 3000){
+                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = dc
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration === 2000){
+                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = dc / 1.5
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration === 0){
+                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = 0
+            }
         }
 
         function Death(){
