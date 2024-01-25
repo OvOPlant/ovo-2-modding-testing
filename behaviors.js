@@ -81,6 +81,29 @@
 
         loadReset(){
             let bhreset = prompt('Choose one: "gravity", "jumpstrength", "timescale", "angle", "speed", "fallspeed", "acceleration", "deceleration", "size", "downx", "downy", "zoom"')
+            if (bhreset === "gravity") {grav = 3000, runtime._dispatcher.removeEventListener("tick2", GravTick);
+            }else if (bhreset === "jumpstrength") {js = 1300;
+            }else if (bhreset === "timescale"){
+                tsreset = prompt('"player", "moveareas", or "both"?')
+                if (tsreset === "player") {ts = -1
+                }else if (tsreset === "moveareas") {mts = -1;
+                }else if (tsreset === "both") {ts = -1, mts = -1;
+                }else {alert("Please choose from the list")}
+            }else if (bhreset === "angle") {runtime._dispatcher.removeEventListener("tick2", AngleTick);
+            }else if (bhreset === "speed") {runtime._dispatcher.removeEventListener("tick2", SpeedTick);
+            }else if (bhreset === "fallspeed") {mf = 6000, runtime._dispatcher.removeEventListener("tick2", FallTick);
+            }else if (bhreset === "acceleration") {acc = 1500;
+            }else if (bhreset === "deceleration") {runtime._dispatcher.removeEventListener("tick2", DecTick);
+            }else if (bhreset === "size") {
+                sreset = prompt('"width", "height", or "both"?')
+                if (sreset === "width") {width = 32;
+                }else if (sreset === "height") {height = 64;
+                }else if (sreset === "both") {width = 32, height = 64; runtime._dispatcher.removeEventListener("tick2", SizeTick);
+                }else {alert("Please choose from the list")}
+            }else if (bhreset === "downx") {downx = 0;
+            }else if (bhreset === "downy") {downy = 1;
+            }else if (bhreset === "zoom") {scale = 1, this.layer0()._scale = 1;
+            }else {alert("Please choose from the list")}
         },
 
         pausing() {
@@ -313,6 +336,32 @@
             })
         },
 
+        zoom() {
+            scale = prompt('To start a cycle or continue your current cycle, type "yes". To change it only once and/or stop your current cycle, type "no".')
+            if (scale === "yes"){
+                scale = prompt("Zoom the camera in or out")
+                if (scale === null || scale === "" || isNaN(scale)){
+                    alert("Must be a number, scale reset, cycle continuing")
+                    scale = 1
+                }else{
+                    clearInterval(zoom)
+                    zoom = setInterval(function() {
+                        ovoBehaviors.layer0()._scale = parseFloat(scale)
+                    }, 0)
+                }
+            }else if (scale === "no"){
+                clearInterval(zoom)
+                scale = prompt("Zoom the camera in or out")
+                if (scale === null || scale === "" || isNaN(scale)){
+                    alert("Must be a number, scale reset")
+                    this.layer0()._scale = 1
+                }else{
+                    this.layer0()._scale = parseFloat(scale)
+                }
+            }else{
+                alert("Please choose from the list")
+            }
+        },
 
         dead() {
             dead = prompt("This will put you in death state, meaning you can't die. Just be sure to not fall under the level. If you do, you will die. To enable this, type 'yes'. To disable this, type 'stop'.")
@@ -334,8 +383,8 @@
             return runtime._allObjectClasses[20]
         },
 
-        getLayer(layerName) {
-            return runtime._layoutManager.GetMainRunningLayout()._layers.find(x => x.name = layerName)
+        layer0() {
+            return runtime._layoutManager.GetMainRunningLayout()._layers.find(x => x.name = "Layer 0")
         },
 
     };
@@ -514,7 +563,7 @@
             } catch (err) { }
             try {
                 document.getElementById("zoom").innerHTML =
-                    "Zoom: " + ovoBehaviors.Layer0().scale
+                    "Zoom: " + ovoBehaviors.layer0()._scale
             } catch (err) { }
             try {
                 document.getElementById("state").innerHTML =
