@@ -79,6 +79,10 @@
             }else {alert("Please choose from the list")}
         },
 
+        loadReset(){
+            let bhreset = prompt('Choose one: "gravity", "jumpstrength", "timescale", "angle", "speed", "fallspeed", "acceleration", "deceleration", "size", "downx", "downy", "zoom"')
+        },
+
         pausing() {
             penable = prompt('This will allow you to pause the game just like OvO (Esc or P), but there will be no pop up. (Try to pause while player/movearea timescale is set to 1) To enable pausing, type "enable". To disable pausing, type "disable".')
             if (penable === "enable"){
@@ -218,7 +222,7 @@
                 alert("Must be a number, speed reset")
                 runtime._dispatcher.removeEventListener("tick2", SpeedTick)
                 return;
-            }else if (ms === 331){
+            }else if (parseFloat(ms) === 330){
                 ms = 330.00000000001
             }
             runtime._dispatcher.addEventListener("tick2", SpeedTick)
@@ -257,6 +261,36 @@
             return;
         },
 
+        size() {
+            width = prompt("Change your width to whatever you want")
+            if (width === null || width === "" || isNaN(width)){
+                alert("Must be a number, width reset");
+                width = 64;
+            }
+            if (width < 0){
+                width = parseFloat(width)-parseFloat(width)*2
+            }
+            if (parseFloat(width) === 32){
+                width = 32.00000000000001
+            }
+            height = prompt("Change your height to whatever you want")
+            if (height === null || height === "" || isNaN(height)){
+                alert("Must be a number, height reset");
+                height = 128
+            }
+            if (parseFloat(width) === 64 && parseFloat(height) === 128){
+                runtime._dispatcher.removeEventListener("tick2", SizeTick)
+            }else{
+                runtime._dispatcher.addEventListener("tick2", SizeTick)
+            }
+            if (this.getPlayer()._iScriptInterface.instVars.State === "plunge" || this.getPlayer()._iScriptInterface.instVars.State === "slide"){
+                this.getPlayer()._iScriptInterface.width = parseFloat(width) * 2
+                this.getPlayer()._iScriptInterface.height = parseFloat(height) / 2
+            }else {
+            this.getPlayer()._iScriptInterface.width = parseFloat(width)
+            this.getPlayer()._iScriptInterface.height = parseFloat(height)}
+        },
+
         dead() {
             dead = prompt("This will put you in death state, meaning you can't die. Just be sure to not fall under the level. If you do, you will die. To enable this, type 'yes'. To disable this, type 'stop'.")
             if (dead === "yes"){
@@ -282,9 +316,10 @@
         function Pause(event){
             if (event.code === "KeyP" || event.code === "Escape"){
                 if (runtime._timeScale !== 0){
+                    timescale = runtime._timeScale
                     runtime._timeScale = 0
                 }else{
-                    runtime._timeScale = 1
+                    runtime._timeScale = timescale
                 }
             }
         }
@@ -331,12 +366,34 @@
         }
 
         function DecTick(){
-            if (ovoBehaviors.getPlayer()._iScriptInterface.behviors.Platform.deceleration === 3000){
-                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = dc
-            }else if (ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration === 2000){
-                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = dc / 1.5
-            }else if (ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration === 0){
-                ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration = 0
+            if (ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec === 3000){
+                ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec = dc
+            }else if (ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec === 2000){
+                ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec = dc / 1.5
+            }else if (ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec === 0){
+                ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._dec = 0    
+            }
+        }
+
+        function SizeTick(){
+            let sib = ovoBehaviors.getPlayer()._siblings
+            if (ovoBehaviors.getPlayer()._iScriptInterface.width <= 0){
+                sib[0]._worldInfo._w = parseFloat(-width) / 4, sib[0]._worldInfo._h = parseFloat(height) / 4, sib[1]._worldInfo._w = parseFloat(-width), sib[1]._worldInfo._h = parseFloat(height) / 2, sib[2]._worldInfo._w = parseFloat(-width) / 8, sib[2]._worldInfo._h = parseFloat(height) / 8, sib[3]._worldInfo._w = parseFloat(-width) / 8, sib[3]._worldInfo._h = parseFloat(height) / 8, sib[4]._worldInfo._w = parseFloat(-width) / 8, sib[4]._worldInfo._h = parseFloat(height) / 8, sib[5]._worldInfo._w = parseFloat(-width) / 8, sib[5]._worldInfo._h = parseFloat(height) / 8, sib[6]._worldInfo._w = parseFloat(-width) / 8, sib[6]._worldInfo._h = parseFloat(height) / 8, sib[7]._worldInfo._w = parseFloat(-width) / 8, sib[7]._worldInfo._h = parseFloat(height) / 8, sib[8]._worldInfo._w = parseFloat(-width) / 8, sib[8]._worldInfo._h = parseFloat(height) / 8, sib[9]._worldInfo._w = parseFloat(-width) / 8, sib[9]._worldInfo._h = parseFloat(height) / 8
+            }else {
+                sib[0]._worldInfo._w = parseFloat(width) / 4, sib[0]._worldInfo._h = parseFloat(height) / 4, sib[1]._worldInfo._w = parseFloat(width), sib[1]._worldInfo._h = parseFloat(height) / 2, sib[2]._worldInfo._w = parseFloat(width) / 8, sib[2]._worldInfo._h = parseFloat(height) / 8, sib[3]._worldInfo._w = parseFloat(width) / 8, sib[3]._worldInfo._h = parseFloat(height) / 8, sib[4]._worldInfo._w = parseFloat(width) / 8, sib[4]._worldInfo._h = parseFloat(height) / 8, sib[5]._worldInfo._w = parseFloat(width) / 8, sib[5]._worldInfo._h = parseFloat(height) / 8, sib[6]._worldInfo._w = parseFloat(width) / 8, sib[6]._worldInfo._h = parseFloat(height) / 8, sib[7]._worldInfo._w = parseFloat(width) / 8, sib[7]._worldInfo._h = parseFloat(height) / 8, sib[8]._worldInfo._w = parseFloat(width) / 8, sib[8]._worldInfo._h = parseFloat(height) / 8, sib[9]._worldInfo._w = parseFloat(width) / 8, sib[9]._worldInfo._h = parseFloat(height) / 8
+            }
+            if (ovoBehaviors.getPlayer()._iScriptInterface.width === parseFloat(width) * 2){
+                ovoBehaviors.getPlayer()._iScriptInterface.width = parseFloat(width) * 2
+                ovoBehaviors.getPlayer()._iScriptInterface.height = parseFloat(height) / 2
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === parseFloat(-width)){
+                ovoBehaviors.getPlayer()._iScriptInterface.width = parseFloat(-width)
+                ovoBehaviors.getPlayer()._iScriptInterface.height = parseFloat(height)
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === parseFloat(-width) * 2){
+                ovoBehaviors.getPlayer()._iScriptInterface.width = parseFloat(-width) * 2
+                ovoBehaviors.getPlayer()._iScriptInterface.height = parseFloat(height) / 2
+            }else{
+                ovoBehaviors.getPlayer()._iScriptInterface.width = parseFloat(width)
+                ovoBehaviors.getPlayer()._iScriptInterface.height = parseFloat(height)
             }
         }
 
@@ -401,20 +458,20 @@
             } catch (err) { }
             try {
                 document.getElementById("dec").innerHTML =
-                    "Deceleration: " + ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration
+                    "Deceleration: " + parseInt(ovoBehaviors.getPlayer()._iScriptInterface.behaviors.Platform.deceleration)
             } catch (err) { }
-            try { if (ovoBehaviors.getPlayer()._iScriptInterface.width === 16.00000000000001){
-                document.getElementById("size").innerHTML =
-                "Size: " + 16 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
-            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -16.00000000000001){
-                document.getElementById("size").innerHTML =
-                "Size: " + -16 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
-            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -32.00000000000002){
-                document.getElementById("size").innerHTML =
-                "Size: " + -32 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
-            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === 32.00000000000002){
+            try { if (ovoBehaviors.getPlayer()._iScriptInterface.width === 32.00000000000001){
                 document.getElementById("size").innerHTML =
                 "Size: " + 32 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -32.00000000000001){
+                document.getElementById("size").innerHTML =
+                "Size: " + -32 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === -64.00000000000001){
+                document.getElementById("size").innerHTML =
+                "Size: " + -64 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
+            }else if (ovoBehaviors.getPlayer()._iScriptInterface.width === 64.00000000000001){
+                document.getElementById("size").innerHTML =
+                "Size: " + 64 + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
             }else{
                 document.getElementById("size").innerHTML =
                     "Size: " + ovoBehaviors.getPlayer()._iScriptInterface.width + ", " + ovoBehaviors.getPlayer()._iScriptInterface.height
