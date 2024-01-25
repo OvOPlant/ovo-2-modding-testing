@@ -291,6 +291,29 @@
             this.getPlayer()._iScriptInterface.height = parseFloat(height)}
         },
 
+        downx() {
+            downx = prompt("Change your downX to whatever you want")
+            if (downx === null || downx === "" || isNaN(downx)) {
+                alert("Must be a number, downX reset");
+                downx = 0;
+            }
+            setInterval(function () {
+                ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._downX = parseFloat(downx)
+            })
+        },
+
+        downy() {
+            downy = prompt("Change your downY to whatever you want")
+            if (downy === null || downy === "" || isNaN(downy)) {
+                alert("Must be a number, downY reset");
+                downy = 1;
+            }
+            setInterval(function () {
+                ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._downY = parseFloat(downy)
+            })
+        },
+
+
         dead() {
             dead = prompt("This will put you in death state, meaning you can't die. Just be sure to not fall under the level. If you do, you will die. To enable this, type 'yes'. To disable this, type 'stop'.")
             if (dead === "yes"){
@@ -309,6 +332,10 @@
 
         getMovearea() {
             return runtime._allObjectClasses[20]
+        },
+
+        getLayer(layerName) {
+            return runtime._layoutManager.GetMainRunningLayout()._layers.find(x => x.name = layerName)
         },
 
     };
@@ -479,11 +506,11 @@
             } catch (err) { }
             try {
                 document.getElementById("dx").innerHTML =
-                    "Downx: " + ovoBehaviors.getPlayer()._iScriptInterface.behavior_insts[0].downx
+                    "Downx: " + ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._downX
             } catch (err) { }
             try {
                 document.getElementById("dy").innerHTML =
-                    "Downy: " + ovoBehaviors.getPlayer()._iScriptInterface.behavior_insts[0].downy
+                    "Downy: " + ovoBehaviors.getPlayer()._behaviorInstances[1]._sdkInst._downY
             } catch (err) { }
             try {
                 document.getElementById("zoom").innerHTML =
